@@ -22,8 +22,16 @@ export default function App() {
   const textRef = useRef<HTMLDivElement>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('preview')
   const [notice, setNotice] = useState('')
+  const [layoutVersion, setLayoutVersion] = useState(0)
   const [result, setResult] = useState<ContrastResult>(() => analyzeRegion(state.stops, state.textColor, state.fontSize, state.fontWeight, state.textX, 42))
   const update = (patch: Partial<EditorState>) => dispatch({ type: 'update', patch })
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => setLayoutVersion((version) => version + 1))
+    if (canvasRef.current) observer.observe(canvasRef.current)
+    if (textRef.current) observer.observe(textRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -51,7 +59,7 @@ export default function App() {
       setResult(analyzeColors(colors, state.textColor, state.fontSize, state.fontWeight))
     }, 140)
     return () => window.clearTimeout(timer)
-  }, [state])
+  }, [state, layoutVersion])
 
   const backgrounds = result.samples.map((sample) => sample.color)
   const whiteRatio = Math.min(...backgrounds.map((color) => contrastRatio('#FFFFFF', color)))
@@ -90,7 +98,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell view-${mobileTab}`}>
       <header className="topbar">
         <a href="/" className="brand" aria-label="GradientGuard home"><span className="brand-mark"><ShieldCheck size={18} /></span><span>GradientGuard</span></a>
         <p className="tagline">Readable gradients, measured everywhere.</p>

@@ -38,8 +38,8 @@ export function GradientControls({ state, update }: Props) {
         <div><span className="eyebrow">Background</span><h2 id="gradient-heading">Gradient</h2></div>
         <button className="icon-button" onClick={addStop} title="Add color stop" aria-label="Add color stop"><Plus size={16} /></button>
       </div>
-      <div className="preset-grid" aria-label="Gradient presets">
-        {presets.map((preset) => <button key={preset.name} className="preset" title={preset.name} aria-label={`Use ${preset.name} preset`} style={{ background: gradientCss(preset.stops, preset.angle) }} onClick={() => update({ stops: preset.stops, selectedStopId: preset.stops[1].id, angle: preset.angle, scrimColor: null, scrimOpacity: 0 })} />)}
+      <div className="preset-grid" role="group" aria-label="Gradient presets">
+        {presets.map((preset) => <button key={preset.name} className="preset" title={preset.name} aria-label={`Use ${preset.name} preset`} onClick={() => update({ stops: preset.stops, selectedStopId: preset.stops[1].id, angle: preset.angle, scrimColor: null, scrimOpacity: 0 })}><span className="preset-swatch" style={{ background: gradientCss(preset.stops, preset.angle) }} /><span>{preset.name}</span></button>)}
       </div>
       <div className="stop-editor">
         <div className="gradient-rail" style={{ background: gradientCss(state.stops, 90) }}>
