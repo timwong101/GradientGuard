@@ -114,7 +114,7 @@ export default function App() {
       <main className="workspace">
         <aside className={`left-panel ${mobileTab === 'controls' ? 'mobile-active' : ''}`}><GradientControls state={state} update={update} /><TextControls state={state} update={update} /></aside>
         <section className={`stage ${mobileTab === 'preview' ? 'mobile-active' : ''}`} aria-label="Gradient workspace">
-          <div className="stage-toolbar"><div><span className="live-dot" /> Analysis updates automatically</div><span>{state.previewSize === 'desktop' ? '1440 × 900' : state.previewSize === 'mobile' ? '390 × 844' : '1080 × 1080'}</span></div>
+          <div className="stage-toolbar"><span>{state.previewSize === 'desktop' ? '1440 × 900' : state.previewSize === 'mobile' ? '390 × 844' : '1080 × 1080'}</span></div>
           <div className="stage-canvas-wrap"><div className="preview-stack"><PreviewCanvas ref={canvasRef} textRef={textRef} state={state} update={update}><Heatmap result={result} visible={state.heatmap} /></PreviewCanvas></div></div>
           <div className="stage-footer"><span>Drag the text or use arrow keys to reposition</span><span>{result.samples.length} points sampled</span></div>
         </section>
