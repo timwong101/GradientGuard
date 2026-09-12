@@ -46,6 +46,8 @@ h2 { margin: 0 0 20px; font-size: 17px; font-weight: 650; line-height: 1.25; let
 .gradient-rail { position: relative; height: 17px; margin: 0 10px; border: 1px solid #00000012; border-radius: 4px; }
 .stop-handle { position: absolute; top: 50%; width: 18px; height: 26px; padding: 0; transform: translate(-50%, -50%); border: 3px solid white; border-radius: 4px; box-shadow: 0 0 0 1px #a1aa9c; }
 .stop-handle.selected { box-shadow: 0 0 0 2px #2c513d; }
+.stop-handle { cursor: ew-resize; touch-action: none; user-select: none; }
+.stop-handle.selected, .stop-handle:focus-visible { z-index: 1; }
 .stop-editor > input[type='range'] { margin-top: 15px; }
 input[type='range'] { width: 100%; height: 16px; margin-inline: 0; accent-color: #38684c; cursor: pointer; }
 .field, .field-row label { display: grid; gap: 8px; min-width: 0; color: #536052; font-size: 12px; font-weight: 500; }

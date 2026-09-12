@@ -1,4 +1,5 @@
 import { Copy, Plus, Trash2 } from 'lucide-react'
+import { useRef } from 'react'
 import { gradientCss } from '../core/gradient'
 import { normalizeHex } from '../core/color'
 import type { EditorState } from '../core/types'
@@ -16,7 +17,14 @@ interface Props {
 }
 
 export function GradientControls({ state, update }: Props) {
+  const drag = useRef<{ pointerId: number; offset: number } | null>(null)
   const selected = state.stops.find((stop) => stop.id === state.selectedStopId) ?? state.stops[0]
+  const moveStop = (id: string, position: number) => update({
+    selectedStopId: id,
+    stops: state.stops.map((stop) => stop.id === id
+      ? { ...stop, position: Math.max(0, Math.min(100, Math.round(position))) }
+      : stop),
+  })
   const updateStop = (patch: Partial<typeof selected>) => update({ stops: state.stops.map((stop) => stop.id === selected.id ? { ...stop, ...patch } : stop) })
   const addStop = () => {
     const id = `stop-${Date.now()}`
@@ -43,8 +51,41 @@ export function GradientControls({ state, update }: Props) {
       </div>
       <div className="stop-editor">
         <div className="gradient-rail" style={{ background: gradientCss(state.stops, 90) }}>
-          {state.stops.map((stop) => (
-            <button key={stop.id} className={`stop-handle ${stop.id === selected.id ? 'selected' : ''}`} style={{ left: `${stop.position}%`, background: stop.color }} onClick={() => update({ selectedStopId: stop.id })} aria-label={`Select stop at ${stop.position}%`} />
+          {state.stops.map((stop, index) => (
+            <button key={stop.id} className={`stop-handle ${stop.id === selected.id ? 'selected' : ''}`}
+              style={{ left: `${stop.position}%`, background: stop.color }}
+              role="slider" aria-label={`Color stop ${index + 1} position`} aria-valuemin={0} aria-valuemax={100}
+              aria-valuenow={stop.position} aria-valuetext={`${stop.position}%`} aria-orientation="horizontal"
+              title="Drag to move. Use arrow keys for precise adjustments."
+              onClick={() => update({ selectedStopId: stop.id })}
+              onPointerDown={(event) => {
+                if (!event.isPrimary || event.button !== 0 || drag.current) return
+                const handle = event.currentTarget
+                const rail = handle.parentElement!
+                drag.current = { pointerId: event.pointerId, offset: event.clientX - rail.getBoundingClientRect().left - rail.clientLeft - stop.position / 100 * rail.clientWidth }
+                handle.setPointerCapture(event.pointerId)
+                update({ selectedStopId: stop.id })
+              }}
+              onPointerMove={(event) => {
+                if (drag.current?.pointerId !== event.pointerId) return
+                const rail = event.currentTarget.parentElement!
+                const position = (event.clientX - rail.getBoundingClientRect().left - rail.clientLeft - drag.current.offset) / rail.clientWidth * 100
+                moveStop(stop.id, position)
+              }}
+              onPointerUp={() => { drag.current = null }}
+              onPointerCancel={() => { drag.current = null }}
+              onLostPointerCapture={() => { drag.current = null }}
+              onKeyDown={(event) => {
+                const step = event.shiftKey ? 10 : 1
+                const positions: Record<string, number> = {
+                  ArrowLeft: stop.position - step, ArrowDown: stop.position - step,
+                  ArrowRight: stop.position + step, ArrowUp: stop.position + step,
+                  Home: 0, End: 100,
+                }
+                if (!(event.key in positions)) return
+                event.preventDefault()
+                moveStop(stop.id, positions[event.key])
+              }} />
           ))}
         </div>
         <input aria-label="Selected stop position" type="range" min="0" max="100" value={selected.position} onChange={(event) => updateStop({ position: Number(event.target.value) })} />

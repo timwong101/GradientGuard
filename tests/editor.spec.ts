@@ -1,5 +1,31 @@
 import { expect, test } from '@playwright/test'
 
+test('color stops drag on the rail and support precise keyboard movement', async ({ page }) => {
+  await page.goto('/')
+  const handle = page.getByRole('slider', { name: 'Color stop 2 position' })
+  const box = (await handle.boundingBox())!
+  const rail = (await page.locator('.gradient-rail').boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(rail.x + rail.width * .75, box.y + box.height / 2, { steps: 8 })
+  await expect(handle).toHaveAttribute('aria-valuenow', '75')
+  await expect(page.getByLabel('Selected stop position')).toHaveValue('75')
+  await expect(page.getByTestId('css-output')).toContainText('#C85B72 75%')
+  await page.mouse.move(rail.x + rail.width + 100, box.y + box.height / 2)
+  await expect(handle).toHaveAttribute('aria-valuenow', '100')
+  await page.mouse.move(rail.x - 100, box.y + box.height / 2)
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+  await page.mouse.up()
+  await handle.press('ArrowRight')
+  await expect(handle).toHaveAttribute('aria-valuenow', '1')
+  await handle.press('Shift+ArrowRight')
+  await expect(handle).toHaveAttribute('aria-valuenow', '11')
+  await handle.press('End')
+  await expect(handle).toHaveAttribute('aria-valuenow', '100')
+  await handle.press('Home')
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+})
+
 test('edits a gradient, moves text, fixes contrast, and exposes CSS', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'Gradient' })).toBeVisible()
