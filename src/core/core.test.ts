@@ -4,6 +4,15 @@ import { interpolateGradient } from './gradient'
 import { minimumScrimOpacity } from './scrim'
 import { decodeState, encodeState } from './share-state'
 import { initialEditorState } from '../state/editor-state'
+import { presets } from './presets'
+
+it('opens on the first preset with readable white text throughout the gradient', () => {
+  expect(initialEditorState.stops).toEqual(presets[0].stops)
+  expect(initialEditorState.angle).toBe(presets[0].angle)
+  for (let position = 0; position <= 100; position += 1) {
+    expect(contrastRatio(initialEditorState.textColor, interpolateGradient(presets[0].stops, position))).toBeGreaterThanOrEqual(4.5)
+  }
+})
 
 describe('WCAG contrast math', () => {
   it('calculates known relative luminance values', () => {

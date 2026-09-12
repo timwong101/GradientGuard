@@ -24,24 +24,30 @@ export const PreviewCanvas = forwardRef<HTMLCanvasElement, Props>(function Previ
   useEffect(() => {
     const canvas = localRef.current
     if (!canvas) return
-    const rect = canvas.getBoundingClientRect()
-    const dpr = window.devicePixelRatio || 1
-    canvas.width = Math.round(rect.width * dpr)
-    canvas.height = Math.round(rect.height * dpr)
-    const context = canvas.getContext('2d', { willReadFrequently: true })
-    if (!context) return
-    context.scale(dpr, dpr)
-    const vector = gradientVector(state.angle, rect.width, rect.height)
-    const gradient = context.createLinearGradient(vector.x0, vector.y0, vector.x1, vector.y1)
-    ;[...state.stops].sort((a, b) => a.position - b.position).forEach((stop) => gradient.addColorStop(stop.position / 100, stop.color))
-    context.fillStyle = gradient
-    context.fillRect(0, 0, rect.width, rect.height)
-    if (state.scrimColor && state.scrimOpacity > 0) {
-      context.globalAlpha = state.scrimOpacity
-      context.fillStyle = state.scrimColor
+    const render = () => {
+      const rect = canvas.getBoundingClientRect()
+      const dpr = window.devicePixelRatio || 1
+      canvas.width = Math.round(rect.width * dpr)
+      canvas.height = Math.round(rect.height * dpr)
+      const context = canvas.getContext('2d', { willReadFrequently: true })
+      if (!context) return
+      context.scale(dpr, dpr)
+      const vector = gradientVector(state.angle, rect.width, rect.height)
+      const gradient = context.createLinearGradient(vector.x0, vector.y0, vector.x1, vector.y1)
+      ;[...state.stops].sort((a, b) => a.position - b.position).forEach((stop) => gradient.addColorStop(stop.position / 100, stop.color))
+      context.fillStyle = gradient
       context.fillRect(0, 0, rect.width, rect.height)
-      context.globalAlpha = 1
+      if (state.scrimColor && state.scrimOpacity > 0) {
+        context.globalAlpha = state.scrimOpacity
+        context.fillStyle = state.scrimColor
+        context.fillRect(0, 0, rect.width, rect.height)
+        context.globalAlpha = 1
+      }
     }
+    render()
+    const observer = new ResizeObserver(render)
+    observer.observe(canvas)
+    return () => observer.disconnect()
   }, [state.stops, state.angle, state.scrimColor, state.scrimOpacity, state.previewSize])
 
   const nudge = (event: React.KeyboardEvent<HTMLDivElement>) => {
