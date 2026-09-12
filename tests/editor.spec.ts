@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('color stops drag on the rail and support precise keyboard movement', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('button', { name: 'Use Dusk preset' }).click()
   const handle = page.getByRole('slider', { name: 'Color stop 2 position' })
   const box = (await handle.boundingBox())!
   const rail = (await page.locator('.gradient-rail').boundingBox())!
@@ -50,6 +51,7 @@ test('mobile editing keeps the canvas visible and resamples after resizing', asy
   await page.goto('/')
   await page.getByRole('tab', { name: 'controls' }).click()
   await expect(page.getByTestId('preview-frame')).toBeVisible()
+  await page.getByRole('button', { name: 'Use Dune preset' }).click()
   await page.getByRole('textbox', { name: 'Content', exact: true }).fill('Readable everywhere')
   await expect(page.getByTestId('preview-text')).toHaveText('Readable everywhere')
   await page.getByRole('tab', { name: 'results' }).click()

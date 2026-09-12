@@ -101,6 +101,7 @@ textarea { padding: 11px; line-height: 1.6; resize: vertical; font-weight: 400; 
 .heatmap .near { background: #da9b2814; }
 .heatmap .safe { background: transparent; }
 .worst-marker { position: absolute; transform: translate(-50%, -50%); width: 18px; height: 18px; border: 2px solid white; border-radius: 50%; display: grid; place-items: center; background: #ad3b30; color: white; font: 700 10px Inter, sans-serif; }
+.worst-marker.passing { background: var(--green); }
 
 .status-banner { display: flex; align-items: center; gap: 10px; padding: 13px 11px; border-radius: 6px; }
 .status-banner.pass { color: #285b3c; background: var(--green-soft); border: 1px solid #d1e3d4; }

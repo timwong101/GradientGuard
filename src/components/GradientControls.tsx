@@ -3,13 +3,7 @@ import { useRef } from 'react'
 import { gradientCss } from '../core/gradient'
 import { normalizeHex } from '../core/color'
 import type { EditorState } from '../core/types'
-
-export const presets: Array<{ name: string; stops: EditorState['stops']; angle: number }> = [
-  { name: 'Ember', angle: 118, stops: [{ id: 'ember-1', color: '#F2A87B', position: 0 }, { id: 'ember-2', color: '#C85B72', position: 46 }, { id: 'ember-3', color: '#613659', position: 100 }] },
-  { name: 'Meadow', angle: 105, stops: [{ id: 'meadow-1', color: '#E8E3A2', position: 0 }, { id: 'meadow-2', color: '#69A88D', position: 55 }, { id: 'meadow-3', color: '#24545C', position: 100 }] },
-  { name: 'Dusk', angle: 132, stops: [{ id: 'dusk-1', color: '#F4D8C2', position: 0 }, { id: 'dusk-2', color: '#8E667F', position: 52 }, { id: 'dusk-3', color: '#342E4E', position: 100 }] },
-  { name: 'Paper', angle: 90, stops: [{ id: 'paper-1', color: '#FFF8E8', position: 0 }, { id: 'paper-2', color: '#DFC9B6', position: 50 }, { id: 'paper-3', color: '#7D685B', position: 100 }] },
-]
+import { presets } from '../core/presets'
 
 interface Props {
   state: EditorState

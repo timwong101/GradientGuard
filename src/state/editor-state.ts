@@ -1,13 +1,10 @@
 import { decodeState } from '../core/share-state'
 import type { EditorState } from '../core/types'
+import { presets } from '../core/presets'
 
 export const initialEditorState: EditorState = {
-  stops: [
-    { id: 'peach', color: '#F2A87B', position: 0 },
-    { id: 'rose', color: '#C85B72', position: 46 },
-    { id: 'plum', color: '#613659', position: 100 },
-  ],
-  selectedStopId: 'rose', angle: 118, text: 'Design that everyone can read.',
+  stops: presets[0].stops,
+  selectedStopId: presets[0].stops[1].id, angle: presets[0].angle, text: 'Design that everyone can read.',
   fontSize: 52, fontWeight: 700, textColor: '#FFFFFF', textAlign: 'left',
   textX: 12, textY: 38, previewSize: 'desktop', scrimColor: null, scrimOpacity: 0, heatmap: true,
 }
