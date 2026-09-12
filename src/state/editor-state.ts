@@ -13,10 +13,11 @@ export interface HistoryState {
   past: EditorState[]
   present: EditorState
   future: EditorState[]
+  lastUpdateGroup?: symbol
 }
 
 export type EditorAction =
-  | { type: 'update'; patch: Partial<EditorState> }
+  | { type: 'update'; patch: Partial<EditorState>; group?: symbol }
   | { type: 'replace'; state: EditorState }
   | { type: 'undo' }
   | { type: 'redo' }
@@ -34,7 +35,12 @@ export function historyReducer(history: HistoryState, action: EditorAction): His
   }
   const present = action.type === 'replace' ? action.state : { ...history.present, ...action.patch }
   if (JSON.stringify(present) === JSON.stringify(history.present)) return history
-  return { past: [...history.past.slice(-49), history.present], present, future: [] }
+  const group = action.type === 'update' ? action.group : undefined
+  // A gesture's first change saves its starting state; later changes update only the preview.
+  const past = group !== undefined && group === history.lastUpdateGroup
+    ? history.past
+    : [...history.past.slice(-49), history.present]
+  return { past, present, future: [], lastUpdateGroup: group }
 }
 
 export function createInitialHistory(search = window.location.search): HistoryState {

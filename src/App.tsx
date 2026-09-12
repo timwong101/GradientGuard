@@ -24,7 +24,7 @@ export default function App() {
   const [notice, setNotice] = useState('')
   const [layoutVersion, setLayoutVersion] = useState(0)
   const [result, setResult] = useState<ContrastResult>(() => analyzeRegion(state.stops, state.textColor, state.fontSize, state.fontWeight, state.textX, 42))
-  const update = (patch: Partial<EditorState>) => dispatch({ type: 'update', patch })
+  const update = (patch: Partial<EditorState>, group?: symbol) => dispatch({ type: 'update', patch, group })
 
   useEffect(() => {
     const observer = new ResizeObserver(() => setLayoutVersion((version) => version + 1))

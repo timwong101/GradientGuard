@@ -7,18 +7,18 @@ import { presets } from '../core/presets'
 
 interface Props {
   state: EditorState
-  update: (patch: Partial<EditorState>) => void
+  update: (patch: Partial<EditorState>, group?: symbol) => void
 }
 
 export function GradientControls({ state, update }: Props) {
-  const drag = useRef<{ pointerId: number; offset: number } | null>(null)
+  const drag = useRef<{ pointerId: number; offset: number; group: symbol } | null>(null)
   const selected = state.stops.find((stop) => stop.id === state.selectedStopId) ?? state.stops[0]
-  const moveStop = (id: string, position: number) => update({
+  const moveStop = (id: string, position: number, group?: symbol) => update({
     selectedStopId: id,
     stops: state.stops.map((stop) => stop.id === id
       ? { ...stop, position: Math.max(0, Math.min(100, Math.round(position))) }
       : stop),
-  })
+  }, group)
   const updateStop = (patch: Partial<typeof selected>) => update({ stops: state.stops.map((stop) => stop.id === selected.id ? { ...stop, ...patch } : stop) })
   const addStop = () => {
     const id = `stop-${Date.now()}`
@@ -56,15 +56,15 @@ export function GradientControls({ state, update }: Props) {
                 if (!event.isPrimary || event.button !== 0 || drag.current) return
                 const handle = event.currentTarget
                 const rail = handle.parentElement!
-                drag.current = { pointerId: event.pointerId, offset: event.clientX - rail.getBoundingClientRect().left - rail.clientLeft - stop.position / 100 * rail.clientWidth }
+                drag.current = { pointerId: event.pointerId, offset: event.clientX - rail.getBoundingClientRect().left - rail.clientLeft - stop.position / 100 * rail.clientWidth, group: Symbol('color-stop-drag') }
                 handle.setPointerCapture(event.pointerId)
-                update({ selectedStopId: stop.id })
+                update({ selectedStopId: stop.id }, drag.current.group)
               }}
               onPointerMove={(event) => {
                 if (drag.current?.pointerId !== event.pointerId) return
                 const rail = event.currentTarget.parentElement!
                 const position = (event.clientX - rail.getBoundingClientRect().left - rail.clientLeft - drag.current.offset) / rail.clientWidth * 100
-                moveStop(stop.id, position)
+                moveStop(stop.id, position, drag.current.group)
               }}
               onPointerUp={() => { drag.current = null }}
               onPointerCancel={() => { drag.current = null }}

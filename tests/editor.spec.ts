@@ -1,5 +1,29 @@
 import { expect, test } from '@playwright/test'
 
+test('one undo reverses a long color-stop drag and preserves earlier edits', async ({ page }) => {
+  await page.goto('/')
+  const content = page.getByRole('textbox', { name: 'Content', exact: true })
+  const originalText = await content.inputValue()
+  await content.fill('Earlier edit')
+  const handle = page.getByRole('slider', { name: 'Color stop 1 position' })
+  const box = (await handle.boundingBox())!
+  const rail = (await page.locator('.gradient-rail').boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(rail.x + rail.width * .9, box.y + box.height / 2, { steps: 90 })
+  await expect(handle).toHaveAttribute('aria-valuenow', '90')
+  await page.mouse.up()
+  const undo = page.getByRole('button', { name: 'Undo', exact: true })
+  await undo.click()
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+  await expect(content).toHaveValue('Earlier edit')
+  await page.getByRole('button', { name: 'Redo', exact: true }).click()
+  await expect(handle).toHaveAttribute('aria-valuenow', '90')
+  await undo.click()
+  await undo.click()
+  await expect(content).toHaveValue(originalText)
+})
+
 test('color stops drag on the rail and support precise keyboard movement', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Use Dusk preset' }).click()
