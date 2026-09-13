@@ -10,7 +10,7 @@ GradientGuard samples the full rectangular region occupied by the preview text, 
 
 ## Screenshot
 
-![GradientGuard on first load: eight presets, the Ember gradient, and an estimated AA pass](./gradientguard-preview.png)
+![GradientGuard on first load: the Ember gradient passing contrast, eight presets, the Try a contrast problem action, and Background CSS export](./gradientguard-preview.png)
 
 The editor opens with **Ember**, a terracotta-to-plum gradient with readable white text. The screenshot reflects the current code on this branch; the live site follows releases merged into `main`.
 
