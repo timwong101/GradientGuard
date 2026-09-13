@@ -8,9 +8,10 @@ import { presets } from '../core/presets'
 interface Props {
   state: EditorState
   update: (patch: Partial<EditorState>, group?: symbol) => void
+  tryContrastProblem: () => void
 }
 
-export function GradientControls({ state, update }: Props) {
+export function GradientControls({ state, update, tryContrastProblem }: Props) {
   const drag = useRef<{ pointerId: number; offset: number; group: symbol } | null>(null)
   const selected = state.stops.find((stop) => stop.id === state.selectedStopId) ?? state.stops[0]
   const moveStop = (id: string, position: number, group?: symbol) => update({
@@ -43,6 +44,7 @@ export function GradientControls({ state, update }: Props) {
       <div className="preset-grid" role="group" aria-label="Gradient presets">
         {presets.map((preset) => <button key={preset.name} className="preset" title={preset.name} aria-label={`Use ${preset.name} preset`} onClick={() => update({ stops: preset.stops, selectedStopId: preset.stops[1].id, angle: preset.angle, scrimColor: null, scrimOpacity: 0 })}><span className="preset-swatch" style={{ background: gradientCss(preset.stops, preset.angle) }} /><span>{preset.name}</span></button>)}
       </div>
+      <button className="example-action" onClick={tryContrastProblem}>Try a contrast problem <span aria-hidden="true">→</span></button>
       <div className="stop-editor">
         <div className="gradient-rail" style={{ background: gradientCss(state.stops, 90) }}>
           {state.stops.map((stop, index) => (

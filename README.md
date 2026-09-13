@@ -29,17 +29,17 @@ The editor opens with **Ember**, a terracotta-to-plum gradient with readable whi
 
 ## Using the editor
 
-1. Start with Ember or choose another preset. Tide, Dusk, and Glow offer different contrast challenges.
+1. Start with Ember or choose another preset. Select **Try a contrast problem** below the presets to load a failing Tide example and reveal the results on mobile. Undo restores your previous design.
 2. Drag the white-bordered handles on the gradient rail to move color stops. The slider below and position input stay synchronized. Add, duplicate, delete, or recolor stops as needed.
 3. Enter representative text, adjust its size, weight, alignment, and color, then drag it in the preview.
 4. Inspect the worst sampled contrast and heatmap. If the estimate fails, select **Make readable** and review the correction. Undo and redo let you compare changes.
-5. Copy the CSS, download it with **Export**, or use **Share** to copy a link to the configuration.
+5. Copy **Background CSS**, download it with **Export**, or use **Share** to copy a link to the configuration. The CSS includes the gradient, text color, and any scrim—not typography, position, or dimensions. Recheck contrast in the final layout; the exported CSS includes a reminder.
 
 Focus a color-stop handle and use arrow keys to move it by 1%, or Shift + arrow keys for 10% steps. Home and End move it to the rail's endpoints. Focus the preview text to nudge it with arrow keys; hold Shift for larger steps.
 
 ## Contrast analysis
 
-Color channels are linearized from sRGB, converted to relative luminance, and compared with `(lighter + 0.05) / (darker + 0.05)`. Normal text targets `4.5:1`; text at least 24px regular or 18.5px bold targets `3:1`.
+Color channels are linearized from sRGB, converted to relative luminance, and compared with `(lighter + 0.05) / (darker + 0.05)`. Normal text targets `4.5:1`; text at least 24px regular or 18.5px bold targets `3:1`. Analysis uses the preview text's computed font size and weight, not just the configured size: responsive text rendered at 18px bold targets `4.5:1`. The target is recalculated when the preview resizes.
 
 The preview gradient is rendered to a device-pixel-ratio-aware canvas. After a 140ms debounce, GradientGuard reads a 12 × 5 grid of pixels (60 points) across the DOM text rectangle so the displayed and measured backgrounds share the same rendering source. The canvas redraws and analysis updates when the preview resizes. For correction, it first checks black and white text. If neither passes on every sampled point, a deterministic binary search finds the minimum contrasting scrim opacity, rounded up to whole-percent increments for application.
 

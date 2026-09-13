@@ -11,7 +11,8 @@ import { contrastRatio, rgbToHex } from './core/color'
 import { minimumScrimOpacity } from './core/scrim'
 import { encodeState } from './core/share-state'
 import type { ContrastResult, EditorState } from './core/types'
-import { createInitialHistory, historyReducer } from './state/editor-state'
+import { createInitialHistory, historyReducer, initialEditorState } from './state/editor-state'
+import { presets } from './core/presets'
 
 type MobileTab = 'controls' | 'preview' | 'results'
 
@@ -56,10 +57,20 @@ export default function App() {
           colors.push({ color: rgbToHex({ r, g, b }), x: (screenX - canvasRect.left) / canvasRect.width * 100, y: (screenY - canvasRect.top) / canvasRect.height * 100 })
         }
       }
-      setResult(analyzeColors(colors, state.textColor, state.fontSize, state.fontWeight))
+      // Responsive preview typography can be smaller than the configured size.
+      const textStyle = window.getComputedStyle(text)
+      setResult(analyzeColors(colors, state.textColor, parseFloat(textStyle.fontSize), Number(textStyle.fontWeight)))
     }, 140)
     return () => window.clearTimeout(timer)
   }, [state, layoutVersion])
+
+  const tryContrastProblem = () => {
+    const preset = presets.find((preset) => preset.name === 'Tide')!
+    dispatch({ type: 'replace', state: { ...initialEditorState, stops: preset.stops, selectedStopId: preset.stops[1].id, angle: preset.angle } })
+    setMobileTab('results')
+    setNotice('Tide example loaded. Try Make readable; Undo restores your design.')
+    window.setTimeout(() => setNotice(''), 3500)
+  }
 
   const backgrounds = result.samples.map((sample) => sample.color)
   const whiteRatio = Math.min(...backgrounds.map((color) => contrastRatio('#FFFFFF', color)))
@@ -112,7 +123,7 @@ export default function App() {
       </header>
       <div className="mobile-tabs" role="tablist">{(['controls', 'preview', 'results'] as MobileTab[]).map((tab) => <button role="tab" aria-selected={mobileTab === tab} className={mobileTab === tab ? 'active' : ''} key={tab} onClick={() => setMobileTab(tab)}>{tab}</button>)}</div>
       <main className="workspace">
-        <aside className={`left-panel ${mobileTab === 'controls' ? 'mobile-active' : ''}`}><GradientControls state={state} update={update} /><TextControls state={state} update={update} /></aside>
+        <aside className={`left-panel ${mobileTab === 'controls' ? 'mobile-active' : ''}`}><GradientControls state={state} update={update} tryContrastProblem={tryContrastProblem} /><TextControls state={state} update={update} /></aside>
         <section className={`stage ${mobileTab === 'preview' ? 'mobile-active' : ''}`} aria-label="Gradient workspace">
           <div className="stage-toolbar"><span>{state.previewSize === 'desktop' ? '1440 × 900' : state.previewSize === 'mobile' ? '390 × 844' : '1080 × 1080'}</span></div>
           <div className="stage-canvas-wrap"><div className="preview-stack"><PreviewCanvas ref={canvasRef} textRef={textRef} state={state} update={update}><Heatmap result={result} visible={state.heatmap} /></PreviewCanvas></div></div>

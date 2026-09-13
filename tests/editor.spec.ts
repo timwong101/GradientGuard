@@ -1,4 +1,49 @@
 import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+
+test('contrast example is undoable and exports scoped background CSS', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('/')
+  await expect(page.getByText('Estimated AA pass')).toBeVisible()
+  const content = page.getByRole('textbox', { name: 'Content', exact: true })
+  await content.fill('My original design')
+  await page.getByRole('button', { name: 'Try a contrast problem' }).click()
+  await expect(page.getByText('Estimated AA fail')).toBeVisible()
+  await page.getByRole('button', { name: 'Undo', exact: true }).click()
+  await expect(content).toHaveValue('My original design')
+  await page.getByRole('button', { name: 'Redo', exact: true }).click()
+  await expect(page.getByText('Estimated AA fail')).toBeVisible()
+  await page.getByRole('button', { name: 'Make readable' }).click()
+  await expect(page.getByText('Estimated AA pass')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Background CSS' })).toBeVisible()
+  const css = await page.getByTestId('css-output').innerText()
+  expect(css).toContain('Recheck contrast with your final typography and layout.')
+  await page.getByRole('button', { name: 'Copy CSS', exact: true }).last().click()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(css)
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export CSS file' }).click()
+  const download = await downloadPromise
+  expect(await readFile((await download.path())!, 'utf8')).toBe(css)
+})
+
+test('mobile analysis uses rendered typography and corrects the Tide example to 4.5:1', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await page.getByRole('tab', { name: 'controls' }).click()
+  await page.getByRole('button', { name: 'Try a contrast problem' }).click()
+  await expect(page.getByRole('tab', { name: 'results' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByText('Estimated AA fail')).toBeVisible()
+  expect(await page.getByTestId('preview-text').evaluate((element) => getComputedStyle(element).fontSize)).toBe('18px')
+  await expect(page.locator('.threshold strong')).toHaveText('4.5:1')
+  await page.getByRole('button', { name: 'Make readable' }).click()
+  await expect(page.getByText('Estimated AA pass')).toBeVisible()
+  expect(Number.parseFloat((await page.getByTestId('worst-ratio').innerText()))).toBeGreaterThanOrEqual(4.5)
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await expect(page.locator('.threshold strong')).toHaveText('3.0:1')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.threshold strong')).toHaveText('4.5:1')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
 
 test('one undo reverses a long color-stop drag and preserves earlier edits', async ({ page }) => {
   await page.goto('/')
