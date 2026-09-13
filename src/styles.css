@@ -38,7 +38,9 @@ svg { flex-shrink: 0; }
 h2 { margin: 0 0 20px; font-size: 17px; font-weight: 650; line-height: 1.25; letter-spacing: -.4px; }
 .section-heading .icon-button { border-color: var(--border); background: #fff; }
 .section-heading .icon-button:hover { background: #eff3ec; border-color: #a5b3a1; }
-.preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 25px; }
+.preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+.example-action { display: flex; align-items: center; gap: 8px; min-height: 36px; margin: 0 0 18px; padding: 0; border: 0; background: transparent; color: var(--green); font-size: 12px; }
+.example-action:hover { text-decoration: underline; text-underline-offset: 3px; }
 .preset { min-width: 0; padding: 0; border: 0; border-radius: 5px; background: transparent; text-align: left; color: var(--muted); font-size: 11px; }
 .preset-swatch { display: block; height: 34px; margin-bottom: 7px; border-radius: 5px; }
 .preset:hover { color: var(--green); }

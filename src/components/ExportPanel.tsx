@@ -7,7 +7,7 @@ export function createCss(state: EditorState): string {
   const layers = state.scrimColor && state.scrimOpacity > 0
     ? `linear-gradient(${state.scrimColor}${Math.round(state.scrimOpacity * 255).toString(16).padStart(2, '0')}, ${state.scrimColor}${Math.round(state.scrimOpacity * 255).toString(16).padStart(2, '0')}),\n    ${gradientCss(state.stops, state.angle)}`
     : gradientCss(state.stops, state.angle)
-  return `.gradient-hero {\n  background: ${layers};\n  color: ${state.textColor};\n}`
+  return `/* Background and text color only.\n   Recheck contrast with your final typography and layout. */\n.gradient-hero {\n  background: ${layers};\n  color: ${state.textColor};\n}`
 }
 
 export function ExportPanel({ state }: { state: EditorState }) {
@@ -19,9 +19,10 @@ export function ExportPanel({ state }: { state: EditorState }) {
   }
   return (
     <section className="results-section export-section" aria-labelledby="export-heading">
-      <div className="section-heading"><div><span className="eyebrow">Production</span><h2 id="export-heading">CSS output</h2></div><button className="icon-button" onClick={copy} title="Copy CSS" aria-label="Copy CSS">{copied ? <Check size={16} /> : <Clipboard size={16} />}</button></div>
+      <div className="section-heading"><div><span className="eyebrow">Export</span><h2 id="export-heading">Background CSS</h2></div><button className="icon-button" onClick={copy} title="Copy CSS" aria-label="Copy CSS">{copied ? <Check size={16} /> : <Clipboard size={16} />}</button></div>
       <pre data-testid="css-output"><code>{css}</code></pre>
       <button className="secondary-button full-button" onClick={copy}>{copied ? <><Check size={15} /> Copied</> : <><Clipboard size={15} /> Copy CSS</>}</button>
+      <p className="disclaimer">Includes the gradient, text color, and any scrim—not typography, position, or dimensions. Recheck contrast in your final layout.</p>
     </section>
   )
 }
